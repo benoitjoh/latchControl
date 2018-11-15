@@ -1,0 +1,6 @@
+# ignore the following patterns
+*.xln
+*.lck
+*.pdf
+*.wp*
+# end

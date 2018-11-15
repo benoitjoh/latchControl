@@ -1,0 +1,10 @@
+LatchControl	KEYWORD1
+on	KEYWORD2
+off	KEYWORD2
+setComplete	KEYWORD2
+reset	KEYWORD2
+getState	KEYWORD2
+startCache  KEYWORD2
+flushCache  KEYWORD2
+
+
