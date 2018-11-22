@@ -36,7 +36,7 @@ The variant MODE_1W uses only clockPin. latchPin (RCK) is driven via cpacity, re
 
 ### One wire ###
 
-![circuit](https://bitbucket.org/benoitjoh/atmwm/downloads/latch_circuit_1w.png)
+![circuit](https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_1w.png)https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_1w.png
 
  C1    | R1   | C2    | R2   |   lowDelay
  ------|------| ------|------|--------------
