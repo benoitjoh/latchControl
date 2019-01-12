@@ -2,8 +2,7 @@
 #include <LatchControl.h>
 #define CLOCKPIN 9
 
-// latchPin = CLOCKPIN + 1
-LatchControl latch(CLOCKPIN, MODE_2W);
+LatchControl latch(CLOCKPIN);
 
 void setup() {
 }
@@ -17,4 +16,3 @@ void loop() {
     }
   
 }
-

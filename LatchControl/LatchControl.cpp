@@ -1,33 +1,25 @@
 // ----------------------------------------------------------------------
 //  module to deal with a latched shift register (78HC595)
 //
-//  this variant uses two pins (MODE_2W) or one pin (MODE_1W):
-//
-//  
 //                                            (c) Johannes Benoit 2017
 // ----------------------------------------------------------------------
 
 #include <LatchControl.h>
 
-#define LOW_DELAY_MYS  2 
+#define LOW_DELAY_MYS  2
 
-LatchControl::LatchControl(byte pinClock, byte mode)
+fio_bit _bitMask;  // mask to set the output pin
+fio_register _outreg;
+
+
+LatchControl::LatchControl(byte pinClock)
 // constructor
 {
     _pinClock = pinClock;
-    _pinLatchClock = pinClock + 1;
-    _mode = mode;
 
     //prepare pins
     pinMode(_pinClock, OUTPUT);
 	digitalWrite(_pinClock, HIGH);
-    
-    if (_mode = MODE_2W)
-    {
-		// in two wire: init the latchClock.. 
-        pinMode(_pinLatchClock, OUTPUT);
-        digitalWrite(_pinLatchClock, LOW);
-    }
 
     // portadress for fast pinClock. (digitalWrite is to slow... )
     //  _bitMask to set the pin LOW with an AND operation
@@ -36,8 +28,6 @@ LatchControl::LatchControl(byte pinClock, byte mode)
     //       works, but slows down pinswap to 1mySecond.
     //       with direct adressing: 200ns
 
-	_use_port_b = (_pinClock > 7); // PORTB 8..13, PORTD 0..7
-	_bitMask = digitalPinToBitMask(_pinClock);
 
     _latchState = 0;
     _latchStateLast = 0;
@@ -55,77 +45,40 @@ void LatchControl::_shiftToLatch()
 
         byte value = _latchState;
 
-		
+        _outreg = portOutputRegister(digitalPinToPort(_pinClock));
+	    _bitMask = digitalPinToBitMask(_pinClock);
+
+
         noInterrupts(); //timecritical section, so turn off interrupts
-        
-	if (_use_port_b == true)
-	{  
-	
+
+
 	    for(int i=0; i<8; i++)
-	    {   
-		// take the bit in postion 7 and clear all others 
-		byte mybit = value & B10000000;
-		
-		if (mybit == B10000000)
-		{
-		    // logical one: a fast pulldown of the clockPin --> no delay
-		    PORTB &=  ~_bitMask; 
-		    PORTB |= _bitMask;
-		}
-		else
-		{
-		    // logical zero longer pulldown --> delay
-		    PORTB &= ~_bitMask; 
-		    delayMicroseconds(LOW_DELAY_MYS);
-		    PORTB |= _bitMask;
-		}		
-		
-		// shift the next bit to position 7
-		value = value << 1;
-		
+	    {
+            // take the bit in postion 7 and clear all others
+            byte mybit = value & B10000000;
+
+            if (mybit == B10000000)
+            {
+                // logical one: a fast pulldown of the clockPin --> no delay
+                fio_digitalWrite_LOW(_outreg,_bitMask);
+                fio_digitalWrite_HIGH(_outreg,_bitMask);
+            }
+            else
+            {
+                // logical zero longer pulldown --> delay
+                fio_digitalWrite_LOW(_outreg,_bitMask);
+                delayMicroseconds(LOW_DELAY_MYS);
+                fio_digitalWrite_HIGH(_outreg,_bitMask);
+            }
+
+            // shift the next bit to position 7
+            value = value << 1;
+
 	    }
-	}
-	else //PORT D
-	{  
-	    
-	    for(int i=0; i<8; i++)
-	    {   
-		// take the bit in postion 7 and clear all others 
-		byte mybit = value & B10000000;
-		
-		if (mybit == B10000000)
-		{
-		    // logical one: a fast pulldown of the clockPin --> no delay
-		    PORTD &= ~_bitMask;  
-		    PORTD |= _bitMask;
-		}
-		else
-		{
-		    // logical zero longer pulldown --> delay
-		    PORTD &= ~_bitMask;  
-		    delayMicroseconds(LOW_DELAY_MYS);
-		    PORTD |= _bitMask;
-		}		
-    
-		// shift the next bit to position 7
-		value = value << 1;
-    
-	    }
-	}
-        
+
         interrupts();
-        
-        if (_mode == MODE_2W)
-        {
-            // two wire: set latchClock
-            digitalWrite(_pinLatchClock, HIGH);
-            digitalWrite(_pinLatchClock, LOW);
-        }
-        // for one wire: just allow latchClock to recover to HIGH
-        // which is done by the subroutine overhead it self
- 
-         _latchStateLast = _latchState;
- 
+        _latchStateLast = _latchState;
+
     }
 }
 
