@@ -2,9 +2,8 @@
 
 #include <LatchControl.h>
 #define CLOCKPIN 9
-LatchControl latch(CLOCKPIN, MODE_1W);
+LatchControl latch(CLOCKPIN);
 
-LatchControl latch2(12, MODE_1W);
 int i = 0;
 void setup() {
   latch.reset();
@@ -16,7 +15,7 @@ void loop() {
     {
         i=0;
     }
-    delayMicroseconds(0);
+    delayMicroseconds(4);
   
 }
 
@@ -46,5 +45,3 @@ void loop() {
 //   
 //  --> transfer speed results to 25 kByte/sec 
 // ----------------------------------------------------------------------
-
-
