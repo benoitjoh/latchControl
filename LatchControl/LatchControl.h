@@ -16,9 +16,7 @@
 
 #include "Arduino.h"
 
-typedef uint8_t fio_bit;
-typedef volatile uint8_t *fio_register;
-
+typedef volatile uint8_t *port_register;
 
 
 class LatchControl

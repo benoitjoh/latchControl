@@ -11,7 +11,7 @@
 
 void shiftOutData(byte pin, byte data)
 {
-        fio_register _srDataRegister = portOutputRegister(digitalPinToPort(pin));
+        port_register _srDataRegister = portOutputRegister(digitalPinToPort(pin));
         uint8_t port = digitalPinToPort(pin); // 2: PORTB 4:PORTD
 	    uint8_t _bitMask = digitalPinToBitMask(pin);
 
