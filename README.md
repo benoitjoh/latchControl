@@ -1,6 +1,6 @@
 # LatchControl #
 This is a simple Class to drive a latched shift register (78HC595) with an ATMEGA controller
-with two connections (MODE_2W) or one connection (MODE_1W)
+with only one pin
 
 ---
 **CONTENT**
@@ -10,28 +10,17 @@ with two connections (MODE_2W) or one connection (MODE_1W)
 ---
 
 ## Requirements ##
-The variant MODE_2W uses two wires between output pins of the controller and chip:
+The setup uses one connection between output pins of the controller and chip:
 
  * clockPin  (SCK at 74HC595)
- * latchPin  (RCK at 74HC595)
 
 The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit with distinct time delay.  A diode cares of a fast return to HIGH.
 
-The variant MODE_1W uses only clockPin. latchPin (RCK) is driven via cpacity, resistor. A diode makes the signal go fast to LOW.
-
- * clockPin  (SCK at 74HC595)
 
 
 
 ## Circuit ##
 
-### Two wires ###
-
-![circuit](https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_2w.png)
-
- C1    | R1   |    lowDelay
- ------|------|---------------
- 2.2nF | 330  |     1µs
 
 
 ### One wire ###
@@ -80,14 +69,14 @@ dataPin (SER) resulting signal:
                      1 µs = lowDelay
                 1µs
 
-latchPin (RCK) resulting signal (on MODE_1W)
+latchPin (RCK) resulting signal 
                                     |<-- move data to outputs now
                                     V
    high ------.                      .--------------------------
               |                 ..--'
    low        '--------------'''
 
-
+  
 ```
  and here how it looks like on a screen:
 
@@ -105,15 +94,15 @@ so the fastest way for the short LOW/HIGH swap is following:
 
 ```
 // using pin 9: pin1 on PORTB
-#define clrMask B11111101
+#define _bitMask B11111101
 
 noInterrupts(); // the timecritical section must be free of interrupts!
-
-byte oldValue = PORTB;
-PORTB &= clrMask; // set LOW
-PORTB = oldValue; // set HIGH again
+PORTB &= ~_bitMask ; // set LOW
+PORTB |= _bitMask; // set HIGH;
 
 interrupts();
+
+After end of transmission the latchclock needs about 4µs to recover.
 
 ```
 
@@ -179,7 +168,7 @@ a = latch.getState(); //returns the binary state of all pins
 ``` c++
 #include <LatchControl.h>
 #define PIN_LATCH_DATACLOCK 9
-LatchControl latch(PIN_LATCH_DATACLOCK, MODE_1W);
+LatchControl latch(PIN_LATCH_DATACLOCK);
 
 void setup()
 {

@@ -21,7 +21,7 @@ void shiftOutData(byte pin, byte data)
             // take the bit in postion 7 and clear all others
             if (data & B10000000)
             {
-                // logical one: a fast pulldown of the clockPin --> no delay
+                // logical one: a fast pulldown of the clockPin
                 // only possibility to get a pulse shorter than 500ns ist to
                 // address port directly
                 if (port == 2)
@@ -31,17 +31,17 @@ void shiftOutData(byte pin, byte data)
                 }
                 else
                 {
-                PORTD &= ~_bitMask ; //clrMask; // set LOW
-                PORTD |= _bitMask; // set HIGH  B00000010;
+                PORTD &= ~_bitMask ; // set LOW
+                PORTD |= _bitMask; // set HIGH
                 }
 
             }
             else
             {
                 // logical zero longer pulldown --> delay
-                *_srDataRegister &= ~_bitMask ; //clrMask; // set LOW
+                *_srDataRegister &= ~_bitMask ; // set LOW
                 delayMicroseconds(LOW_DELAY_MYS);
-                *_srDataRegister |= _bitMask; // set HIGH  B00000010;
+                *_srDataRegister |= _bitMask; // set HIGH
              }
 
             // shift the next bit to position 7
@@ -50,7 +50,7 @@ void shiftOutData(byte pin, byte data)
 	    }
 
         interrupts();
-
+        delayMicroseconds(4); // to allow latch to recover
 }
 
 
@@ -62,14 +62,6 @@ LatchControl::LatchControl(byte pinClock)
     //prepare pins
     pinMode(_pinClock, OUTPUT);
 	digitalWrite(_pinClock, HIGH);
-
-    // portadress for fast pinClock. (digitalWrite is to slow... )
-    //  _bitMask to set the pin LOW with an AND operation
-    // _setMask is to set it HIGH with an OR operation
-    // hint: using pointer for distinguish port (_myport = &PORTB ..)
-    //       works, but slows down pinswap to 1mySecond.
-    //       with direct adressing: 200ns
-
 
     _latchState = 0;
     _latchStateLast = 0;
