@@ -15,14 +15,9 @@
 #define LatchControl_h
 
 #include "Arduino.h"
-#include "FastIO.h"
 
-//#define fio_digitalWrite_LOW(reg,mybit) *reg &= ~mybit
-//#define fio_digitalWrite_HIGH(reg,mybit) *reg |= mybit
-
-
-//typedef uint8_t fio_bit;
-//typedef volatile uint8_t *fio_register;
+typedef uint8_t fio_bit;
+typedef volatile uint8_t *fio_register;
 
 
 

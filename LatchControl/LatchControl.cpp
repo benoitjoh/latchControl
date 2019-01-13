@@ -8,8 +8,50 @@
 
 #define LOW_DELAY_MYS  2
 
-fio_bit _bitMask;  // mask to set the output pin
-fio_register _outreg;
+
+void shiftOutData(byte pin, byte data)
+{
+        fio_register _srDataRegister = portOutputRegister(digitalPinToPort(pin));
+        uint8_t port = digitalPinToPort(pin); // 2: PORTB 4:PORTD
+	    uint8_t _bitMask = digitalPinToBitMask(pin);
+
+        noInterrupts(); //timecritical section, so turn off interrupts
+	    for(int i=0; i<8; i++)
+	    {
+            // take the bit in postion 7 and clear all others
+            if (data & B10000000)
+            {
+                // logical one: a fast pulldown of the clockPin --> no delay
+                // only possibility to get a pulse shorter than 500ns ist to
+                // address port directly
+                if (port == 2)
+                {
+                PORTB &= ~_bitMask ; //clrMask; // set LOW
+                PORTB |= _bitMask; // set HIGH  B00000010;
+                }
+                else
+                {
+                PORTD &= ~_bitMask ; //clrMask; // set LOW
+                PORTD |= _bitMask; // set HIGH  B00000010;
+                }
+
+            }
+            else
+            {
+                // logical zero longer pulldown --> delay
+                *_srDataRegister &= ~_bitMask ; //clrMask; // set LOW
+                delayMicroseconds(LOW_DELAY_MYS);
+                *_srDataRegister |= _bitMask; // set HIGH  B00000010;
+             }
+
+            // shift the next bit to position 7
+            data = data << 1;
+
+	    }
+
+        interrupts();
+
+}
 
 
 LatchControl::LatchControl(byte pinClock)
@@ -41,42 +83,7 @@ void LatchControl::_shiftToLatch()
     if (_latchState != _latchStateLast and _use_cache == false )
     {
         // only write to ShiftRegister if anything has changed and cachemode is off.
-
-
-        byte value = _latchState;
-
-        _outreg = portOutputRegister(digitalPinToPort(_pinClock));
-	    _bitMask = digitalPinToBitMask(_pinClock);
-
-
-        noInterrupts(); //timecritical section, so turn off interrupts
-
-
-	    for(int i=0; i<8; i++)
-	    {
-            // take the bit in postion 7 and clear all others
-            byte mybit = value & B10000000;
-
-            if (mybit == B10000000)
-            {
-                // logical one: a fast pulldown of the clockPin --> no delay
-                fio_digitalWrite_LOW(_outreg,_bitMask);
-                fio_digitalWrite_HIGH(_outreg,_bitMask);
-            }
-            else
-            {
-                // logical zero longer pulldown --> delay
-                fio_digitalWrite_LOW(_outreg,_bitMask);
-                delayMicroseconds(LOW_DELAY_MYS);
-                fio_digitalWrite_HIGH(_outreg,_bitMask);
-            }
-
-            // shift the next bit to position 7
-            value = value << 1;
-
-	    }
-
-        interrupts();
+        shiftOutData(_pinClock, _latchState);
         _latchStateLast = _latchState;
 
     }
