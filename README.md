@@ -23,12 +23,13 @@ The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit
 
 
 
-### One wire ###
-
 ![circuit](https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_1w.png)
+
+
 
  C1    | R1   | C2    | R2   |   lowDelay
  ------|------| ------|------|--------------
+ 220pF | 2.2k | 220pF | 10k  |    1µs   
  2.2nF | 330  | 2.2nF |  1k  |    1µs
 
 ## Working Scheme ##
