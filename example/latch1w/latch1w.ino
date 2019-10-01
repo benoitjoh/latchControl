@@ -2,7 +2,7 @@
 
 #include <LatchControl.h>
 #define CLOCKPIN 10
-LatchControl latch(CLOCKPIN);
+LatchControl latch(CLOCKPIN, MODE_1W);
 
 int i = 0;
 int relais = 0;

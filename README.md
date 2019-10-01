@@ -21,9 +21,17 @@ The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit
 
 ## Circuit ##
 
+### Variant with one wire (MODE_1W) ###
 
+(SCK is connected to pin, SER and RCK is driven by capacitors) 
 
 ![circuit](https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_1w.png)
+
+### Variant with two wires (MODE_2W) ###
+
+(SCK and RCK ist connected to pins. SER is driven by capacitors)
+
+![circuit](https://github.com/benoitjoh/latchControl/blob/master/latch_circuit_2w.png)
 
 
 
@@ -70,7 +78,9 @@ dataPin (SER) resulting signal:
                      1 µs = lowDelay
                 1µs
 
-latchPin (RCK) resulting signal 
+latchPin (RCK) resulting signal in MODE_1W. (in MODE_2W it is 
+   explicitely set by an out put pin
+
                                     |<-- move data to outputs now
                                     V
    high ------.                      .--------------------------
