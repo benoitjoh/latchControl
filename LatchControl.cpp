@@ -6,14 +6,16 @@
 
 #include <LatchControl.h>
 
-#define LOW_DELAY_MYS  2
+#define LOW_DELAY_MYS 10
 
 
-void shiftOutData(byte pin, byte data)
+#define DELAY LOW_DELAY_MYS + 1
+
+void LatchControl::_shiftOutData(byte data)
 {
-        port_register _srDataRegister = portOutputRegister(digitalPinToPort(pin));
-        uint8_t port = digitalPinToPort(pin); // 2: PORTB 4:PORTD
-	    uint8_t _bitMask = digitalPinToBitMask(pin);
+        port_register _srDataRegister = portOutputRegister(digitalPinToPort(_pinClock));
+        uint8_t port = digitalPinToPort(_pinClock); // 2: PORTB 4:PORTD
+	    uint8_t _bitMask = digitalPinToBitMask(_pinClock);
 
         noInterrupts(); //timecritical section, so turn off interrupts
 	    for(int i=0; i<8; i++)
@@ -40,7 +42,8 @@ void shiftOutData(byte pin, byte data)
             {
                 // logical zero longer pulldown --> delay
                 *_srDataRegister &= ~_bitMask ; // set LOW
-                delayMicroseconds(LOW_DELAY_MYS);
+                delayMicroseconds(DELAY);
+
                 *_srDataRegister |= _bitMask; // set HIGH
              }
 
@@ -50,18 +53,38 @@ void shiftOutData(byte pin, byte data)
 	    }
 
         interrupts();
-        delayMicroseconds(4); // to allow latch to recover
+        if (_mode == MODE_2W)
+        {
+            // two wire: set latchClock
+            digitalWrite(_pinLatchClock, HIGH);
+            digitalWrite(_pinLatchClock, LOW);
+        }
+        else
+        {
+            // for one wire: just allow latchClock to recover to HIGH
+            delayMicroseconds(4);
+        }
+
+
 }
 
 
-LatchControl::LatchControl(byte pinClock)
+LatchControl::LatchControl(byte pinClock, byte mode)
 // constructor
 {
     _pinClock = pinClock;
-
+    _mode = mode;
+    _pinLatchClock = pinClock + 1;
     //prepare pins
     pinMode(_pinClock, OUTPUT);
 	digitalWrite(_pinClock, HIGH);
+    if (_mode = MODE_2W)
+    {
+        // in two wire: init the latchClock..
+        pinMode(_pinLatchClock, OUTPUT);
+        digitalWrite(_pinLatchClock, LOW);
+    }
+
 
     _latchState = 0;
     _latchStateLast = 0;
@@ -75,7 +98,7 @@ void LatchControl::_shiftToLatch()
     if (_latchState != _latchStateLast and _use_cache == false )
     {
         // only write to ShiftRegister if anything has changed and cachemode is off.
-        shiftOutData(_pinClock, _latchState);
+        _shiftOutData( _latchState);
         _latchStateLast = _latchState;
 
     }

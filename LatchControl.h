@@ -3,7 +3,11 @@
 //  This is a simple Class to drive a latched shift register (like 78HC595)
 //  with an ATMEGA controller
 //
-//  - one digital output pin of the controller:
+//  This variant uses
+//  - two digital output pins of the controller in mode = MODE_2W :
+//       a clockPin and a latchPin
+//       (latchPin = clockPin +1)
+//  - one digital output pin of the controller in mode = MODE_1W :
 //       clockPin
 //
 //  the other pins are driven via capacity circuit with
@@ -16,13 +20,18 @@
 
 #include "Arduino.h"
 
+#define MODE_2W  2 // use 2 pins (pinClock and pinLatch)
+#define MODE_1W  1 // use only one pin (pinClock)
+
+
+
 typedef volatile uint8_t *port_register;
 
 
 class LatchControl
 {
 public:
-    LatchControl(byte pinClock);
+    LatchControl(byte pinClock, byte mode);
     // pins of ATMEGA for shift register
 
 
@@ -40,11 +49,13 @@ public:
 
 //private:
 protected:
+    void _shiftOutData(byte data);
     void _shiftToLatch(); //write the _latchState register out to the IC
     byte _latchState;
     byte _latchStateLast;
 
     byte _pinClock;
+    byte _pinLatchClock;
     byte _mode;
     bool _use_cache;
 

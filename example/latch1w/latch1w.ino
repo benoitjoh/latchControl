@@ -1,21 +1,28 @@
 // examples with two latchregisters
 
 #include <LatchControl.h>
-#define CLOCKPIN 9
+#define CLOCKPIN 10
 LatchControl latch(CLOCKPIN);
 
 int i = 0;
+int relais = 0;
 void setup() {
   latch.reset();
+  pinMode(5, OUTPUT);
 }
 
 void loop() {
-    latch.setComplete(i++);
-    if (i>255)
+    
+    latch.setComplete(1 << i);//(i & 1) + B10010010);
+    if (i>7)
     {
         i=0;
+        relais = ~relais & 1;
+        digitalWrite(5, relais);
+        
     }
-    delayMicroseconds(4);
+    i++;
+    delay(200);
   
 }
 
