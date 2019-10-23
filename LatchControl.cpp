@@ -6,10 +6,7 @@
 
 #include <LatchControl.h>
 
-#define LOW_DELAY_MYS 10
-
-
-#define DELAY LOW_DELAY_MYS + 1
+#define LOW_DELAY_MYS 6
 
 void LatchControl::_shiftOutData(byte data)
 {
@@ -42,7 +39,7 @@ void LatchControl::_shiftOutData(byte data)
             {
                 // logical zero longer pulldown --> delay
                 *_srDataRegister &= ~_bitMask ; // set LOW
-                delayMicroseconds(DELAY);
+                delayMicroseconds(LOW_DELAY_MYS);
 
                 *_srDataRegister |= _bitMask; // set HIGH
              }

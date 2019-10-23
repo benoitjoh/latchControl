@@ -5,6 +5,7 @@
 LatchControl latch(CLOCKPIN, MODE_2W);
 
 void setup() {
+  
 }
 
 void loop() {
@@ -12,7 +13,7 @@ void loop() {
   for(int i=0;i<256;i++)
     {
     latch.setComplete(i);
-    delay(200);
+    delayMicroseconds(100);
     }
   
 }

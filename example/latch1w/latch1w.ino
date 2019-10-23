@@ -1,7 +1,7 @@
 // examples with two latchregisters
 
 #include <LatchControl.h>
-#define CLOCKPIN 10
+#define CLOCKPIN 9
 LatchControl latch(CLOCKPIN, MODE_1W);
 
 int i = 0;
@@ -22,7 +22,7 @@ void loop() {
         
     }
     i++;
-    delay(200);
+    delay(1000);
   
 }
 
