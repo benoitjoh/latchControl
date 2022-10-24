@@ -35,10 +35,10 @@ The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit
 
 
 
- C1    | R1   | C2    | R2   |   lowDelay
- ------|------| ------|------|--------------
- 220pF | 2.2k | 220pF | 10k  |    1µs   
- 2.2nF | 330  | 2.2nF |  1k  |    1µs
+ C1    | R1   | C2    | R2    |   LOW_DELAY_MYS
+ ------|------| ------|-------|--------------
+ 220pF | 3.3k | 220pF | >10k  |    3µs   
+ 2.2nF | 330  | 2.2nF | > 1k  |    3µs
 
 ## Working Scheme ##
 
