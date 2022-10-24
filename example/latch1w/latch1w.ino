@@ -1,11 +1,10 @@
-// examples with two latchregisters
+// examples with latchregister
 
 #include <LatchControl.h>
 #define CLOCKPIN 9
 LatchControl latch(CLOCKPIN, MODE_1W);
 
 int i = 0;
-int relais = 0;
 void setup() {
   latch.reset();
   pinMode(5, OUTPUT);
@@ -13,16 +12,13 @@ void setup() {
 
 void loop() {
     
-    latch.setComplete(1 << i);//(i & 1) + B10010010);
-    if (i>7)
+    latch.setComplete(i);//1 << i);
+    i++;
+    if (i>255)
     {
         i=0;
-        relais = ~relais & 1;
-        digitalWrite(5, relais);
-        
     }
-    i++;
-    delay(1000);
+    delay(100);
   
 }
 
@@ -48,7 +44,7 @@ void loop() {
 //
 //  Timing examples (times in mircoseconds)
 //  C1     R1    C2    R2    LOW_DELAY_MYS 
-//  2.2nF  330 2.2nF  1k        3     
+//  2.2nF  220 2.2nF  1k        2     
 //   
 //  --> transfer speed results to 25 kByte/sec 
 // ----------------------------------------------------------------------
