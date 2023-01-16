@@ -53,6 +53,7 @@ void LatchControl::_shiftOutData(byte data)
         if (_mode == MODE_2W)
         {
             // two wire: set latchClock
+            Serial.println("enable.");
             digitalWrite(_pinLatchClock, HIGH);
             digitalWrite(_pinLatchClock, LOW);
         }
@@ -75,7 +76,7 @@ LatchControl::LatchControl(byte pinClock, byte mode)
     //prepare pins
     pinMode(_pinClock, OUTPUT);
 	digitalWrite(_pinClock, HIGH);
-    if (_mode = MODE_2W)
+    if (_mode == MODE_2W)
     {
         // in two wire: init the latchClock..
         pinMode(_pinLatchClock, OUTPUT);
