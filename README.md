@@ -14,7 +14,7 @@ The setup uses one connection between output pins of the controller and chip:
 
  * clockPin  (SCK at 74HC595)
 
-The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit with distinct time delay.  A diode cares of a fast return to HIGH.
+The dataPin (SER = pin14 at 74HC595) and optionally the RCK (pin 12) is driven via capacity and resistor circuit with distinct time delay.  A diode cares of a fast return to HIGH.
 
 
 
@@ -39,6 +39,94 @@ The dataPin (SER = pin14 at 74HC595) is driven via capacity and resistor circuit
  ------|------| ------|-------|--------------
  220pF | 3.3k | 220pF | >10k  |    3µs   
  2.2nF | 330  | 2.2nF | > 1k  |    3µs
+
+
+## Usage ##
+
+### Initialization
+
+#### one wire
+```c++
+#include <LatchControl.h>
+#define PIN_LATCH_CLOCK  9           // shiftregister: clock, data and latch signal
+
+LatchControl latch(PIN_LATCH_CLOCK, MODE_1W);
+
+```
+#### two wire
+In two wire mode the Clock pin is defined, the second pin (latch / RCK) is clockPin + 1.
+```c++
+#include <LatchControl.h>
+#define PIN_LATCH_CLOCK  9               // shiftregister: clock and data signal
+// PIN_LATCH_RCK  is PIN_LATCH_CLOCK + 1 // shiftregister: latch signal
+
+LatchControl latch(PIN_LATCH_CLOCK, MODE_2W);
+
+```
+### Methods
+
+#### on(pin) / off(pin) : change single pins ###
+
+```c++
+latch.off(3); //turns off pin #3
+latch.on(2);  //turns on pin #2
+```
+
+#### startCache(), flushCache() : reduce traffic
+
+```c++
+latch.startCache();
+
+// change some single pins
+latch.off(3);
+latch.off(2);
+latch.on(6);
+
+// write the state to the chip once
+latch.flushCache();
+```
+
+#### reset() : turn of all
+
+```c++
+latch.reset(); //turns off all pins
+```
+
+#### setComplete() : set all pins at once
+
+```c++
+latch.setComplete(0x0f); //turns on 0 .. 3 and off 4 .. 7
+```
+
+#### byte getState() : get the actual state of the pins
+
+```c++
+a = latch.getState(); //returns the binary state of all pins
+```
+
+## Example sketch
+
+``` c++
+#include <LatchControl.h>
+#define PIN_LATCH_CLOCK 9
+LatchControl latch(PIN_LATCH_CLOCK);
+
+void setup()
+{
+    latch.reset();
+}
+
+void loop()
+{
+  for(int i=0;i<256;i++)
+    {
+    latch.setComplete(i);
+    delay(50);
+    }
+
+}
+
+```
 
 ## Working Scheme ##
 
@@ -114,93 +202,6 @@ PORTB |= _bitMask; // set HIGH;
 interrupts();
 
 After end of transmission the latchclock needs about 4µs to recover.
-
-```
-
-## Usage ##
-
-### Initialization
-
-#### one wire
-```c++
-#include <LatchControl.h>
-#define PIN_LATCH_CLOCK  9           // shiftregister: clock, data and latch signal
-
-LatchControl latch(PIN_LATCH_CLOCK, MODE_1W);
-
-```
-#### two wire
-In two wire mode the Clock pin is defined, the second pin (latch / RCK) is clockPin + 1.
-```c++
-#include <LatchControl.h>
-#define PIN_LATCH_CLOCK  9               // shiftregister: clock and data signal
-// PIN_LATCH_RCK  is PIN_LATCH_CLOCK + 1 // shiftregister: latch signal
-
-LatchControl latch(PIN_LATCH_CLOCK, MODE_2W);
-
-```
-### Methods
-
-#### on(pin) / off(pin) : change single pins ###
-
-```c++
-latch.off(3); //turns off pin #3
-latch.on(2);  //turns on pin #2
-```
-
-#### startCache(), flushCache() : reduce traffic
-
-```c++
-latch.startCache();
-
-// change some single pins
-latch.off(3);
-latch.off(2);
-latch.on(6);
-
-// write the state to the chip once
-latch.flushCache();
-```
-
-#### reset() : turn of all
-
-```c++
-latch.reset(); //turns off all pins
-```
-
-#### setComplete() : set all pins at once
-
-```c++
-latch.setComplete(0x0f); //turns on 0 .. 3 and off 4 .. 7
-```
-
-#### byte getState() : get the actual state of the pins
-
-```c++
-a = latch.getState(); //returns the binary state of all pins
-```
-
-## Example sketch
-
-``` c++
-#include <LatchControl.h>
-#define PIN_LATCH_DATACLOCK 9
-LatchControl latch(PIN_LATCH_DATACLOCK);
-
-void setup()
-{
-    latch.reset();
-}
-
-void loop()
-{
-  for(int i=0;i<256;i++)
-    {
-    latch.setComplete(i);
-    delay(50);
-    }
-
-}
 
 ```
 
