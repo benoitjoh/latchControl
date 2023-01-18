@@ -121,18 +121,24 @@ After end of transmission the latchclock needs about 4µs to recover.
 
 ### Initialization
 
-
+#### one wire
 ```c++
-// --- use driver for latch register
 #include <LatchControl.h>
-#define PIN_LATCH_DATACLOCK  9           // shiftregister: clock (and data) signal
-// PIN_LATCH_DATACLOCK  is PIN_CLOCK + 1 // shiftregister: latch shift clock signal
-// MODE is MODE_2W (two wire mode) or MODE_1W (one wire mode)
+#define PIN_LATCH_CLOCK  9           // shiftregister: clock, data and latch signal
 
-LatchControl latch(PIN_LATCH_CLOCK, MODE);
+LatchControl latch(PIN_LATCH_CLOCK, MODE_1W);
 
 ```
+#### two wire
+In two wire mode the Clock pin is defined, the second pin (latch / RCK) is clockPin + 1.
+```c++
+#include <LatchControl.h>
+#define PIN_LATCH_CLOCK  9               // shiftregister: clock and data signal
+// PIN_LATCH_RCK  is PIN_LATCH_CLOCK + 1 // shiftregister: latch signal
 
+LatchControl latch(PIN_LATCH_CLOCK, MODE_2W);
+
+```
 ### Methods
 
 #### on(pin) / off(pin) : change single pins ###
