@@ -52,7 +52,6 @@ protected:
     void _shiftOutData(byte data);
     void _shiftToLatch(); //write the _latchState register out to the IC
     byte _latchState;
-    byte _latchStateLast;
 
     byte _pinClock;
     byte _pinLatchClock;

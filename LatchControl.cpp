@@ -6,7 +6,7 @@
 
 #include <LatchControl.h>
 
-#define LOW_DELAY_MYS 6
+#define LOW_DELAY_MYS 3
 
 void LatchControl::_shiftOutData(byte data)
 {
@@ -85,19 +85,17 @@ LatchControl::LatchControl(byte pinClock, byte mode)
 
 
     _latchState = 0;
-    _latchStateLast = 0;
     _use_cache = false;
-    reset();
+
 }
 
 void LatchControl::_shiftToLatch()
-// write the byte to pins
+// write the byte to pins if the value was changed
 {
-    if (_latchState != _latchStateLast and _use_cache == false )
+    if (_use_cache == false )
     {
         // only write to ShiftRegister if anything has changed and cachemode is off.
         _shiftOutData( _latchState);
-        _latchStateLast = _latchState;
 
     }
 }
